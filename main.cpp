@@ -18,13 +18,33 @@
         // demo to replit
         // done by the 20th <---- I'm from the future, this does not happen :(
 
+/* TODO:
+*		Better Event handler
+*		Error handlers too?
+*		Some more functions (drawing characters & maybe pixmaps & bitmaps)
+* 
+*		Finish variable array (eventually)
+* 	Demo to Replit (eventually)
+*
+*/
+
 // aux_ <-- auxillary function
 //
 //
 
 
-//#include <application/application.h>
-//#include <base/graphicsutil/gutil.h>
+// What I want this to look like:
+// 	while loop
+// 	start frame
+// 	do stuff (if key is pressed, draw directly to frame buffer)
+//  	-> predefined characters
+// 	end frame
+
+// need to handle atoms & events
+
+
+#include <application/application.h>
+#include <base/graphicsutil/gutil.h>
 #include <base/memory/texture.h>
 #include <base/memory/ram.h>
 #include <fstream>
@@ -120,10 +140,10 @@ float cacos(float x) {
 int main() {
     using namespace CEGUI;
 
-    /*APP::Application app(600, 400);
+    APP::Application app(600, 400);
 
-    Atom wmDeleteMessage = XInternAtom(app.w.m_dpy, "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(app.w.m_dpy, app.w.m_win, &wmDeleteMessage, 1);
+    /*Atom wmDeleteMessage = XInternAtom(app.w.m_dpy, "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(app.w.m_dpy, app.w.m_win, &wmDeleteMessage, 1);*/
 
     bool running = true;
     
@@ -139,8 +159,8 @@ int main() {
                     break; 
                 case ClientMessage:
                     std::cout << "ClientMessage" << std::endl;
-                    if (e.xclient.data.l[0] == wmDeleteMessage)
-                        running = false;
+                    /*if (e.xclient.data.l[0] == wmDeleteMessage)
+                        running = false;*/
                     break;
                 case ConfigureNotify:
                     {
@@ -158,31 +178,8 @@ int main() {
         //RENDERING::drawRect(app.w.GetFramebuff(), 0, 0, 100, 100);
         RENDERING::drawline(app.w.GetFramebuff(), 200, 300, 10, 10);
         app.END_FRAME(); // draws framebuffer to screen
-    }*/
+    }
 
     // https://courses.cs.vt.edu/cs2604/spring03/binio.html
-    /*std::fstream t;
-    t.open("text.stuff", std::ios::out | std::ios::binary);
 
-    int i=2,j=5;
-    t.write((char*)&i, sizeof(int));
-    t.write((char*)&j, sizeof(int));
-
-    char ah='f';
-
-    for (int i=0; i<10*4; i++) {
-        t.write((char*)&ah, sizeof(char));
-    }*/
-
-
-    CEGUI::MEMORY::INIT_MEM();
-
-    CEGUI::MEMORY::TEXTURE::INIT_TEXTURE(110, 100);
-    CEGUI::MEMORY::TEXTURE::allocate("text.stuff");
-    CEGUI::MEMORY::TEXTURE::allocate("aaaahhhhh.amogus");
-
-    std::cout << "\n";
-    CEGUI::MEMORY::TEXTURE::mt->doit();
-
-    CEGUI::MEMORY::END();
 }

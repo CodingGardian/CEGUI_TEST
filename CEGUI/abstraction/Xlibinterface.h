@@ -19,7 +19,7 @@
 #define UNKOWN 0
 
 namespace CEGUI {
-    namespace XINTERFACE {
+    namespace INTERFACE {
         //bool INTERFACE_INITIALIZED = false;
         int Init(); // get display, screen, initialize truecolor (or use something else if forced to)
 

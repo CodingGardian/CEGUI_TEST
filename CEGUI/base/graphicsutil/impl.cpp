@@ -1,11 +1,13 @@
 #include <base/graphicsutil/gutil.h>
+#include <base/graphicsutil/ScreenMap.h>
+
 #include <iostream>
 #include <utility>
 #include <cmath>
 
 using namespace CEGUI;
 // Brasenham's algorithm (one of the fastest in town) TODO: derrive shorter method...
-void RENDERING::drawline(const CEGUI::APP::Framebuffer& framebuff, unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
+void DRAWING::DrawLine(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
 
     int dx = x2 - x1; int sx = x1 < x2 ? 1 : -1;
     int dy = y2 - y1; int sy = y1 < y2 ? 1 : -1;
@@ -15,7 +17,7 @@ void RENDERING::drawline(const CEGUI::APP::Framebuffer& framebuff, unsigned int 
     dx *= sx;
     dy *= sy;
     while (true) {
-        framebuff.m_memory[framebuff.m_width*y1+x1] = 0xFFFFFFFF;
+        videobuffer->m_memory[framebuff->m_width*y1+x1] = 0xFFFFFFFF;
         if (x1 == x2 && y1 == y2) {break;}
 
         ex += dx;
@@ -130,12 +132,12 @@ void RENDERING::drawline(const CEGUI::APP::Framebuffer& framebuff, unsigned int 
 
 }
 
-void RENDERING::drawRect(const CEGUI::APP::Framebuffer& framebuff, unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
-    int* start = &framebuff.m_memory[framebuff.m_width*y+x];
+void DRAWING::DrawRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
+    int* start = videobuffer->m_memory[framebuff.m_width*y+x];
     int* ptr = start;
 
     for (int i=0; i<height; i++) {
-        start += framebuff.m_width;
+        start += videobuffer->m_width;
         ptr = start;
         for (int j=0; j<width; j++) {
             *ptr = 0xFFFFFFFF;
@@ -145,7 +147,7 @@ void RENDERING::drawRect(const CEGUI::APP::Framebuffer& framebuff, unsigned int 
 
 }
 
-void RENDERING::drawIRect(const CEGUI::APP::Framebuffer& framebuff, unsigned int x1, unsigned int x2, unsigned int y[]) {
+void DRAWING::DrawIRect(const CEGUI::APP::Framebuffer& framebuff, unsigned int x1, unsigned int x2, unsigned int y[]) {
     // init variables for brasenhams algorithm
     
     // check if
@@ -158,4 +160,10 @@ void RENDERING::drawIRect(const CEGUI::APP::Framebuffer& framebuff, unsigned int
     // start loop
         // increment each line
     
+}
+
+// A scrreen map is a data structure composing of vertical lines (switch to horizontal, much faster this way)
+// handle with 8 byte quantities
+void DRAWING::d_DrawScreenMask(scrmap_header s, scrpos s) {
+	
 }

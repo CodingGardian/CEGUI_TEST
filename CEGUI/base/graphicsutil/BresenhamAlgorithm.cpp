@@ -1,6 +1,6 @@
 #include <base/graphicsutil/gutil.h>
 
-using namespace CEGUI::RENDERING;
+using namespace CEGUI::DRAWING;
 
 void FillBHAlgorithm(BresenhamAlgorithm& ba, unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
     ba.x = x1; ba.y = y1;

@@ -1,0 +1,2 @@
+run = "g++ -I CEGUI/ main.cpp CEGUI/base/memory/ram.cpp CEGUI/base/memory/texture.cpp CEGUI/application/window.cpp CEGUI/application/application.cpp CEGUI/base/graphicsutil/impl.cpp CEGUI/base/graphicsutil/BresenhamAlgorithm.cpp -lX11 -o main; ./main"
+hidden = ["main", "**/*.o", "**/*.d", ".ccls-cache", "Makefile"]
