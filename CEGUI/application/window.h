@@ -8,54 +8,58 @@
 
 namespace CEGUI {
     namespace APP {
-        struct Framebuffer {
-            int* m_memory;
-            unsigned int m_width, m_height;
-        };
-			
-        class WindowBase {
-  			private:
-            Window m_win;
-            XSetWindowAttributes m_xswa;
-            Colormap m_cmap;
-            XVisualInfo* m_visinfo;
-            Display* m_dpy;
-            Screen* m_screen;
-            GC m_gc;
-            XGCValues m_gcval;
-            int m_scrnum;
 
-            XImage* m_Xframebuff;
-            int* m_memory;
-            int m_width, m_height, m_total; // width, height, total size of framebuffer
-            Framebuffer m_framebuff;
-            
-            char m_keyQuery[32];
-						char m_keyMap[64];
+		typedef void* plhandle;
 
-						bool m_defaultcolor;
-
-						void MapKeys();
-				public:
-            WindowBase(unsigned int width, unsigned int height);
-            ~WindowBase();
-
-            Framebuffer& GetFramebuff(); // gets the framebuffer
-            XImage* GetXBuff(); // gets the ximage structure
-            void resize(int width, int height);
-
-            int PendingEvents(); // returns number of events in queue
-            void GetEvent(XEvent* e);
-            
-            void QueryKeys();
-            bool GetKeyPressed(int key);
-
-            //Atom* SendAtom(char* atomname, Bool only_if_exists); me angy. fix.
-
-            void Update(); // draws framebuffer
-          
-        };
+    struct Framebuffer {
+      int* frame;
+      unsigned int width, height, bytedepth;
     };
+
+		struct ppblock { // pixel proccess block, 8 bytes wide, no need to change for 32 bit systems
+			char data[8];
+		};
+
+		struct Pixel2b {
+			char data[2];
+		};
+
+		struct Pixel3b {
+			char data[3];
+		};
+		
+		struct Pixel4b {
+			char data[4];
+		};
+		
+		Framebuffer XVideoBuffer[2];
+			
+    CEGUI_INIT(unsigned int width, unsigned int height);
+		CEGUI_CLOSE();
+
+		void SwapActiveBuffer();
+
+		void HandleEvents();
+
+		XErrorEvent GetError();
+            
+    void QueryKeys();
+    bool GetKeyPressed(int key);
+
+		
+		Pixel4b GetPalleteColor4b(plhandle, char);
+		Pixel4b GetPalleteColor3b(plhandle, char);
+		Pixel4b GetpalleteColor2b(plhandle, char);
+		
+
+    //Atom* SendAtom(char* atomname, Bool only_if_exists); me angy. fix.
+
+    void Update(); // draws framebuffer
+
+		void QueryKeys();
+          
+    };
+  };
 };
 
 

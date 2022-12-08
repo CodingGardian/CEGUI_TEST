@@ -1,28 +1,25 @@
-#include<application/application.h>
+#include <application/application.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 using namespace CEGUI::APP;
 
-Application::Application(int width, int height) : w(width, height) {
 
+
+void CEGUI::APP::_Error(const char* error, const char* function) {
+	printf("Error: %s in function %s\n", error, function);
+	ProgramFail();
 }
 
-Application::~Application() {
-
+void CEGUI::APP::_Warning(const char* war, const char* function) {
+	printf("Warning: %s in functio n %s\n", war, function);
 }
 
-void DEFAULT_EXPOSE_HANDLER(XEvent e) {
-	
-};
+void CEGUI::APP::ProgramFail() {
+	// clean things up (and exit with proper code?)
+	CEGUI_CLOSE();
+	printf("Shutting down CEGUI\n");
 
-void DEFAULT_CONFIGURE_HANDLER(XEvent e) {
-	
-}
-
-
-void Application::START_FRAME() {
-    w.QueryKeys();
-}
-
-void Application::END_FRAME() {
-    w.Update();
+	printf("Terminating\n");
+	exit(-1);
 }

@@ -147,23 +147,4 @@ void DRAWING::DrawRect(unsigned int x, unsigned int y, unsigned int width, unsig
 
 }
 
-void DRAWING::DrawIRect(const CEGUI::APP::Framebuffer& framebuff, unsigned int x1, unsigned int x2, unsigned int y[]) {
-    // init variables for brasenhams algorithm
-    
-    // check if
-    //  m > 1
-    //  m < 1
-    //  slope is positive
-    //  slope is negative
-
-
-    // start loop
-        // increment each line
-    
-}
-
-// A scrreen map is a data structure composing of vertical lines (switch to horizontal, much faster this way)
-// handle with 8 byte quantities
-void DRAWING::d_DrawScreenMask(scrmap_header s, scrpos s) {
-	
-}
+void d_DrawScreenline4b(scrline, scrpos);
