@@ -9,7 +9,6 @@ namespace CEGUI {
 
         // Brasenhams line algorithm has many uses in the optimization of polygon drawing.
         // This structure stores the algorithms "position" and is incremented via a Brasenham function
-        extern CEGUI::APP::Framebuffer* videobuffer;
 
         struct BresenhamAlgorithm {
             unsigned int x,y;
@@ -18,7 +17,7 @@ namespace CEGUI {
             int ey, ex;
         };
 	
-				struct scrpos {int x,y;}
+				struct scrpos {int x,y;};
 
         void FillBHAlgorithm(BresenhamAlgorithm& ba, unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2);
         void iterate(BresenhamAlgorithm& ba);

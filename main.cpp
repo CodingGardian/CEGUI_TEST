@@ -140,44 +140,16 @@ float cacos(float x) {
 int main() {
     using namespace CEGUI;
 
-    APP::Application app(600, 400);
-
     /*Atom wmDeleteMessage = XInternAtom(app.w.m_dpy, "WM_DELETE_WINDOW", False);
     XSetWMProtocols(app.w.m_dpy, app.w.m_win, &wmDeleteMessage, 1);*/
-
+		APP::CEGUI_INIT(100, 200, nullptr, 4);
     bool running = true;
     
     while(running) {
-        app.START_FRAME(); // preps keys 
-        while( app.w.PendingEvents() ) {
-            XEvent e;
-            app.w.GetEvent(&e);
-            switch(e.type) {
-                case Expose:
-                    // draw I guess...
-                    std::cout << "Expose message" << std::endl;
-                    break; 
-                case ClientMessage:
-                    std::cout << "ClientMessage" << std::endl;
-                    /*if (e.xclient.data.l[0] == wmDeleteMessage)
-                        running = false;*/
-                    break;
-                case ConfigureNotify:
-                    {
-                    std::cout << "Configure message" << std::endl;
-                    XConfigureEvent ce = e.xconfigure;
-                    
-                    app.w.resize(ce.width, ce.height);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        //RENDERING::drawRect(app.w.GetFramebuff(), 0, 0, 100, 100);
-        RENDERING::drawline(app.w.GetFramebuff(), 200, 300, 10, 10);
-        app.END_FRAME(); // draws framebuffer to screen
+      APP::HandleEvents();
+			if (APP::GetKeyPressed(CEK_UP)) {
+				std::cout << "Key UP pressed!\n";
+			}
     }
 
     // https://courses.cs.vt.edu/cs2604/spring03/binio.html

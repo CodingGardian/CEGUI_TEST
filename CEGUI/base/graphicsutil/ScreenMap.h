@@ -6,13 +6,7 @@
 
 namespace CEGUI {
 	namespace DRAWING {
-		// KEEP EVERYTHING ALIGNED TO 8 BYTES!!!!!
-
-		struct scrmask_header {
-			char* data;
-			char __pad1[3], __pad2[4];
-			int width, height;
-		};
+		// KEEP EVERYTHING MEMORY ALIGNED TO 8 BYTES!!!!!
 
 		struct scrline {
 			char* data;
@@ -21,34 +15,32 @@ namespace CEGUI {
 			int len;
 		};
 
-		struct theader {
-			theader* next;
+		struct bheader {
+			bheader* next;
 			int len;
 			char __pad[4];
 		};
 
-
-		struct texture {
-			theader* data;
+		struct bitmap {
+			bheader* data;
 			int len;
-			scrnpos bounds; // add these to position of texture to see if it is clipped by screen
+			scrpos bounds; // add these to position of texture to see if it is clipped by screen
 			bool vertical; // is it arranged vertically or horizontally
 			char __pad[3];
 		};
-
-		struct scrpos {
-			int x, y;
-		};
-
-		void d_DrawScreenline4b(scrline, scrpos);
+		
+		/*void d_DrawScreenline4b(scrline, scrpos);
 		//void d_DrawScreenline3b(scrline, scrpos);
 		void d_DrawScreenline2b(scrline, scrpos);
-		void d_DrawScreenline1b(scrline, scrpos);
+		void d_DrawScreenline1b(scrline, scrpos);*/
 
-		void d_DrawScreenMask4b(scrmask, scrpos);
+		void d_DrawBitMap4b(bitmap, scrpos);
 		//void d_DrawScreenMask3b(scrmask, scrpos);
-		void d_DrawScreenMask2b(scrmask, scrpos);
-		void d_DrawScreenMask1b(scrmask, scrpos);
+		void d_DrawBitMap2b(bitmap, scrpos);
+		void d_DrawBitMap1b(bitmap, scrpos);
+
+		//typedef (void)(*LineDrawFunc)(scrline, scrpos);
+		//typedef (void)(*MaskDrawFunc)(scrmask, scrpos);
 	};
 };
 

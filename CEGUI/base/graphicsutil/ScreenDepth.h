@@ -5,7 +5,10 @@
 
 namespace CEGUI {
 	namespace DRAWING {
-		
+		struct drawpack {
+			LineDrawFunc ldraw;
+			MaskDrawFunc mdraw;
+		};
 	};
 };
 

@@ -17,7 +17,7 @@ void DRAWING::DrawLine(unsigned int x1, unsigned int y1, unsigned int x2, unsign
     dx *= sx;
     dy *= sy;
     while (true) {
-        videobuffer->m_memory[framebuff->m_width*y1+x1] = 0xFFFFFFFF;
+        WinData.frame[WinData.width*y1+x1] = 0xFFFFFFFF;
         if (x1 == x2 && y1 == y2) {break;}
 
         ex += dx;
@@ -133,11 +133,11 @@ void DRAWING::DrawLine(unsigned int x1, unsigned int y1, unsigned int x2, unsign
 }
 
 void DRAWING::DrawRect(unsigned int x, unsigned int y, unsigned int width, unsigned int height) {
-    int* start = videobuffer->m_memory[framebuff.m_width*y+x];
+    int* start = WinData.frame[WinData.width*y+x];
     int* ptr = start;
 
     for (int i=0; i<height; i++) {
-        start += videobuffer->m_width;
+        start += WinData.width;
         ptr = start;
         for (int j=0; j<width; j++) {
             *ptr = 0xFFFFFFFF;
@@ -147,4 +147,52 @@ void DRAWING::DrawRect(unsigned int x, unsigned int y, unsigned int width, unsig
 
 }
 
-void d_DrawScreenline4b(scrline, scrpos);
+/*void d_DrawScreenline4b(scrline l, scrpos p) {
+	ppblock* dest = (XCurrentVidBuffer.memory + p.y*XCurrentVidBuffer.width) + p.x;
+	int acc = XCurrentVidBuffer.width/2;
+	ppblock* source = l.data;
+
+	switch(len%2) {
+		case 0:
+			len /= 2;
+
+			if (l.vertical) {
+				for (int i=0; i<len; i+=2) {
+					*dest = *source;
+					source++;
+					dest += acc;
+				}
+			}
+			else  {
+				for (int i=0; i<len; i+=2) {
+					*dest = *source;
+					source++;
+					dest++;
+				}
+			}
+			
+		break;
+		case 1:
+			len /=2;
+			len--;
+
+			if (l.vertical) {
+				for (int i=0; i<len; i+=2) {
+					*dest = *source;
+					source++;
+					dest += acc;
+				}
+			}
+			else  {
+				for (int i=0; i<len; i+=2) {
+					*dest = *source;
+					source++;
+					dest++;
+				}
+			}
+			// uhhh, im sure this is ok :\ TODO: somethings wrong I can feel it
+			int* temp = (int*)dest;
+			*temp = *((int*)(source));                                                                                      	
+		break;
+	}
+}*/

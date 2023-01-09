@@ -12,7 +12,7 @@ namespace CEGUI {
 		typedef void* plhandle;
 
     struct Framebuffer {
-      int* frame;
+      unsigned char* frame;
       unsigned int width, height, bytedepth;
     };
 
@@ -31,11 +31,15 @@ namespace CEGUI {
 		struct Pixel4b {
 			char data[4];
 		};
-		
-		Framebuffer XVideoBuffer[2];
-			
-    CEGUI_INIT(unsigned int width, unsigned int height);
-		CEGUI_CLOSE();
+
+		struct WindowData {
+			int width, height, bytedepth;
+			char* frame;
+		};
+		extern WindowData WinData;
+
+    int CEGUI_INIT(unsigned int width, unsigned int height, char* pallete, int bytedepth);
+		void CEGUI_CLOSE();
 
 		void SwapActiveBuffer();
 
@@ -46,21 +50,17 @@ namespace CEGUI {
     void QueryKeys();
     bool GetKeyPressed(int key);
 
-		
 		Pixel4b GetPalleteColor4b(plhandle, char);
 		Pixel4b GetPalleteColor3b(plhandle, char);
 		Pixel4b GetpalleteColor2b(plhandle, char);
 		
-
     //Atom* SendAtom(char* atomname, Bool only_if_exists); me angy. fix.
 
     void Update(); // draws framebuffer
 
 		void QueryKeys();
-          
-    };
-  };
-};
+  }
+}
 
 
 

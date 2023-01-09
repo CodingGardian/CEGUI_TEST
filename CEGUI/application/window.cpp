@@ -1,5 +1,7 @@
 #include <application/window.h>
+#include <application/application.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <iostream>
 
@@ -16,9 +18,10 @@ XGCValues x_gcval;
 int x_scrnum;
 
 XImage* x_framebuffer[2];
+unsigned char* frames[2];
 int x_width, x_height, x_total; // width, height, total size of framebuffer
 
-int x_byteDepth;
+int x_bytedepth;
 
 char x_keyQuery[32];
 char x_keyMap[64];
@@ -36,7 +39,7 @@ enum xfuncdesc {
 	Xfunc_MapWindow,
 	Xfunc_CreateColormap,
 	Xfunc_AllocColorCells
-}
+};
 
 struct xcontext {
 	XErrorEvent e;
@@ -45,8 +48,8 @@ struct xcontext {
 
 xcontext x_context;
 
-unsigned long x_redmask, x_greenmask, x_bluemask
-unsinged int x_rshift, x_gshift, x_bshift;
+unsigned long x_redmask, x_greenmask, x_bluemask;
+unsigned int x_rshift, x_gshift, x_bshift;
 
 int activebuffer=0;
 
@@ -67,10 +70,9 @@ int HandleErrors(Display* dpy, XErrorEvent* err);
 Display* xwrapOpenDisplay(char* displayname);
 
 Window xwrapCreateWindow(Display* dpy, Window root, int x, int y, int width, 
-												 int height, int borderwidth, int depth, unsidned int Class, Visaul visual, 
-												 unsigned long valuemask, XSetWindowAttributes* attributes);
+												 int height, int borderwidth, int depth, unsigned int Class, Visual* visual, unsigned long valuemask, XSetWindowAttributes* attributes);
 
-GC* xwrapCreateGC(Display* dpy, Drawable d, unsigned long valuemask, XGCValues* values);
+GC xwrapCreateGC(Display* dpy, Drawable d, unsigned long valuemask, XGCValues* values);
 
 void xwrapMapWindow(Display* dpy, Window win);
 
@@ -92,13 +94,25 @@ void InitCTable32b(char* pallete) {
 	// todo: implement!!!!
 }
 
+void MapKeys() {
+	x_keyMap[CEK_UP] = XKeysymToKeycode(x_dpy, XK_Up);
+	x_keyMap[CEK_DOWN] = XKeysymToKeycode(x_dpy, XK_Down);
+	x_keyMap[CEK_LEFT] = XKeysymToKeycode(x_dpy, XK_Left);
+	x_keyMap[CEK_RIGHT] = XKeysymToKeycode(x_dpy, XK_Right);
+
+	for (int i=4; i<100; i++) {
+		x_keyMap[i] = ' ';
+	}
+	
+}
+
 // color palletes are optinal
 // TODO: Error checking using x_context
 int CEGUI::APP::CEGUI_INIT(unsigned int width, unsigned int height, char* pallete, int bytedepth) {
 	x_width = width;
 	x_height = height;
-	x_lastError = 0;
-	CEGUI_initialized = true;
+	memset(&x_context, 0, sizeof(xcontext));
+	CEGUI_initalized = true;
 	
   // display and visual type
   x_dpy = xwrapOpenDisplay(0);
@@ -109,36 +123,36 @@ int CEGUI::APP::CEGUI_INIT(unsigned int width, unsigned int height, char* pallet
 	XSetErrorHandler(HandleErrors);
 	
 	
-  XVisualInfo* tempvis;
-  tempvis.c_class = PsudeoColor;
+  XVisualInfo tempvis;
+  tempvis.c_class = PseudoColor;
   tempvis.screen = x_scrnum;
   int num;
   x_visinfo = XGetVisualInfo(x_dpy, VisualClassMask|VisualScreenMask, &tempvis, &num);
 	  if (!x_visinfo)  Error("XGetVisualInfo returned 0");
 	for (int i=0; i<num; i++) {
-		if (tempvis->depth == x_bytedepth*4) {break;}
+		if (x_visinfo->depth == x_bytedepth*4) {break;}
 		if (i = num-1 && x_bytedepth != -1) {Error("No visual info with requested byte depth!");}
-		tempvis += 1;
+		x_visinfo += 1;
 	}
 
   // first allocate temporary colormap
 	x_cmap = xwrapCreateColormap(x_dpy, RootWindow(x_dpy, x_scrnum), x_visinfo->visual, AllocNone);
     
-  x_xswa.colormap = m_cmap;
+  x_xswa.colormap = x_cmap;
   x_xswa.background_pixel = 0;
   x_xswa.border_pixel = 0;
   x_xswa.event_mask = ExposureMask | KeyPressMask | StructureNotifyMask;
 
 	XSync(x_dpy, True);
 
-	x_byteDepth = x_visinfo->depth / 8;
+	x_bytedepth = x_visinfo->depth / 8;
 	x_redmask = x_visinfo->red_mask;
 	x_greenmask = x_visinfo->green_mask;
 	x_bluemask = x_visinfo->blue_mask;
 
 	int align = 0;
 	// todo: check byte depth stuff
-	switch(x_byteDepth) {
+	switch(x_bytedepth) {
 		case 4:
 			// alpha channel that will not be used :\, take advantage of this for byte allignmnet!
 			// process two pixels at a time
@@ -158,7 +172,7 @@ int CEGUI::APP::CEGUI_INIT(unsigned int width, unsigned int height, char* pallet
 				Warning("Byte depth causes misalignment, padding screen width!");
 				printf("prev framebuffer width %i -> new framebuffer width %i", x_width, x_width+align);
 			}*/
-
+			// maybe just make 4 pixels and tell xlib to read 4 bytes at a time and only take 3
 			if (pallete != nullptr) {InitCTable24b(pallete);}
 			break;
 		case 2:
@@ -194,11 +208,11 @@ int CEGUI::APP::CEGUI_INIT(unsigned int width, unsigned int height, char* pallet
                         x_visinfo->depth, InputOutput, x_visinfo->visual, CWBackPixel | CWColormap | 
 												CWBorderPixel, &x_xswa);
 	
-	XFreeColormap(m_dpy, m_cmap);
+	XFreeColormap(x_dpy, x_cmap);
 
 	if (x_bytedepth == 1) {
-		x_cmap = xwrapCreateColormap(m_dpy, XRootWindow(m_dpy, m_scrnum), x_visinfo->visual, AllocAll);
-		XSetWindowColormap(m_dpy, m_win, x_cmap);
+		x_cmap = xwrapCreateColormap(x_dpy, XRootWindow(x_dpy, x_scrnum), x_visinfo->visual, AllocAll);
+		XSetWindowColormap(x_dpy, x_win, x_cmap);
 	}
 	
   XSelectInput(x_dpy, x_win, ExposureMask | KeyPressMask | StructureNotifyMask);
@@ -208,42 +222,50 @@ int CEGUI::APP::CEGUI_INIT(unsigned int width, unsigned int height, char* pallet
   x_gc = xwrapCreateGC(x_dpy, x_win, GCGraphicsExposures, &x_gcval);
 
     // Framebuffer (XImage with more steps)
-	unsigned char* FrameBuffer1 = malloc(width * height * x_bytedepth);
-	unsigned char* FrameBuffer2 = malloc(width * height * x_bytedepth);
+	unsigned char* FrameBuffer1 = (unsigned char*)malloc(width * height * x_bytedepth);
+	unsigned char* FrameBuffer2 = (unsigned char*)malloc(width * height * x_bytedepth);
 
+	frames[0] = FrameBuffer1;
+	frames[1] = FrameBuffer2;
+	
   for (int i=0; i<x_width*x_height*x_bytedepth; i++) {
-    FrameBuffer1 + i = 0;
-		FrameBuffer2 + i = 0; 
+    FrameBuffer1 = 0;
+		FrameBuffer2 = 0;
+		FrameBuffer1++;
+		FrameBuffer2++;
   }
 
-  x_framebuffer[0] = XCreateImage(m_dpy, m_visinfo->visual, m_visinfo->depth, ZPixmap, 0, 
-                               	  (char*)Framebuffer1, m_width, m_height, 32, 0);
+ x_framebuffer[0] = XCreateImage(x_dpy, x_visinfo->visual, x_visinfo->depth, ZPixmap, 0, 
+                               	  (char*)FrameBuffer1, x_width, x_height, 32, 0);
 
-	x_framebuffer[1] = XCreateImage(m_dpy, m_visinfo->visual, m_visinfo->depth, ZPixmap, 0, 
-                               	  (char*)Framebuffer2, m_width, m_height, 32, 0);
+	x_framebuffer[1] = XCreateImage(x_dpy, x_visinfo->visual, x_visinfo->depth, ZPixmap, 0, 
+                               	  (char*)FrameBuffer2, x_width, x_height, 32, 0);
 	
-  if (!x_framebuff) exit(-1);
+  if (!x_framebuffer || !(x_framebuffer+1)) exit(-1);
 
-	XVideoBuffer[0].memory = FrameBuffer1;
-	XVideoBuffer[0].width = width;
-	XVideoBuffer[0].height = height;
-	XVideoBuffer[0].bytedepth = x_bytedepth;
+	activebuffer = 0;
+
+	WinData.width = x_width;
+	WinData.height = x_height;
+	WinData.bytedepth = x_bytedepth;
+	WinData.frame = frames[0];
 	
-	XVideoBuffer[1].memory = FrameBuffer2;
+	/*XVideoBuffer[1].memory = FrameBuffer2;
 	XVideoBuffer[1].width = width;
 	XVideoBuffer[1].height = height;
-	XVideoBuffer[1].bytedepth = x_bytedepth;
+	XVideoBuffer[1].bytedepth = x_bytedepth;*/
     
   usleep(1000);
 
-  XMapWindow(m_dpy, m_win);
+  XMapWindow(x_dpy, x_win);
 
-  XSync(m_dpy, True);
+  XSync(x_dpy, True);
 	
 	MapKeys();
 	
 	HandleEvents();
   // finally done :)
+	return 0;
 }
 
 void AllocateColorPallete(char* pallete) {
@@ -266,8 +288,9 @@ int ErrorHandler(Display* dpy, XErrorEvent* err) {
 		case BadWindow:
 			Warning("BadWindow error generated by Xlib");
 			x_context.e = *err;
+			// handle based off of context
 			break;
-		//case 
+		//case
 	}
 }
 
@@ -278,82 +301,70 @@ Display* xwrapOpenDisplay(char* displayname) {
 }
 
 Window xwrapCreateWindow(Display* dpy, Window root, int x, int y, int width, 
-																int height, int borderwidth, int depth, unsidned int Class,
-																Visaul visual, unsigned long valuemask, XSetWindowAttributes* attributes) 
+																int height, int borderwidth, int depth, unsigned int Class,
+																Visual *visual, unsigned long valuemask, XSetWindowAttributes* attributes) 
 {
 	x_context.fdesc = Xfunc_CreateWindow;
 	return XCreateWindow(dpy, root, x, y, width, height, borderwidth, depth, Class, visual, valuemask, attributes);
 }
 
-GC* xwrapCreateGC(Display* dpy, Drawable d, unsigned long valuemask, XGCValues* values) {
+GC xwrapCreateGC(Display* dpy, Drawable d, unsigned long valuemask, XGCValues* values) {
 	x_context.fdesc = Xfunc_CreateGC;
 	return XCreateGC(dpy, d, valuemask, values);
 }
 
 void xwrapMapWindow(Display* dpy, Window win) {
 	x_context.fdesc = Xfunc_MapWindow;
-	XMapWindow(dpy, d, valuemask, values);
+	XMapWindow(dpy, win);
 }
 
 Colormap xwrapCreateColormap(Display* dpy, Window win, Visual* visual, int alloc) {
-	x_context.fdesc = Xfunc_CreateColormap
+	x_context.fdesc = Xfunc_CreateColormap;
 	return XCreateColormap(dpy, win, visual, alloc);
 }
 
-void MapKeys() {
-	m_keyMap[CEK_UP] = XKeysymToKeycode(m_dpy, XK_Up);
-	m_keyMap[CEK_DOWN] = XKeysymToKeycode(m_dpy, XK_Down);
-	m_keyMap[CEK_LEFT] = XKeysymToKeycode(m_dpy, XK_Left);
-	m_keyMap[CEK_RIGHT] = XKeysymToKeycode(m_dpy, XK_Right);
-
-	for (int i=4; i<100; i++) {
-		m_keyMap[i] = ' ';
-	}
-	
-}
-
 void Resize(int width, int height) {
-    if (m_width == width && m_height == height) {return;}
+    if (x_width == width && x_height == height) {return;}
     
-    m_width = width;
-    m_height = height;
+    x_width = width;
+    x_height = height;
+	
+    XDestroyImage(x_framebuffer[0]); // frees the memory pointed by the framebuffer too
+		XDestroyImage(x_framebuffer[1]);
 
-    m_framebuff.m_width = width;
-    m_framebuff.m_height = height;
-
-    XDestroyImage(m_Xframebuff); // frees the memory pointed by the framebuffer too
-
-    m_framebuff.m_memory = (int*)malloc(m_height*m_width*4);
+    frames[0] = (unsigned char*)malloc(x_height*x_width*4);
+		frames[1] = (unsigned char*)malloc(x_height*x_width*4)
     
-    for (int i=0; i<m_width*m_height; i++) {
-        m_framebuff.m_memory[i] = 0xFF00FFFF;
+    for (int i=0; i<x_height*x_height; i++) {
+        x_framebuffer[0]->memory[i] = 0;
+				x_framebuffer[1]->memory[i] = 0;
     }
 
-    x_framebuffer[0] = XCreateImage(m_dpy, m_visinfo->visual, m_visinfo->depth, ZPixmap, 0, 
-                               	  (char*)Framebuffer1, m_width, m_height, 32, 0);
+    x_framebuffer[0] = XCreateImage(x_dpy, x_visinfo->visual, x_visinfo->depth, ZPixmap, 0, 
+                               	  (char*)(frames[0]), x_width, x_height, 32, 0);
 
-		x_framebuffer[1] = XCreateImage(m_dpy, m_visinfo->visual, m_visinfo->depth, ZPixmap, 0, 
-                               	  (char*)Framebuffer2, m_width, m_height, 32, 0);
+		x_framebuffer[1] = XCreateImage(x_dpy, x_visinfo->visual, x_visinfo->depth, ZPixmap, 0, 
+                               	  (char*)(frames[1]) x_width, x_height, 32, 0);
 	
-    if (!m_Xframebuff) exit(-1);
+    if (!x_framebuff || !(x_framebuff+1)) exit(-1);
 }
 
 void CEGUI::APP::Update() {
-    XPutImage(m_dpy, m_win, m_gc, m_Xframebuff[activebuffer], 0, 0, 0, 0, m_width, m_height);
+    XPutImage(x_dpy, x_win, x_gc, x_framebuffer[activebuffer], 0, 0, 0, 0, x_width, x_height);
 }
 
 
 void CEGUI::APP::QueryKeys() {
-    XQueryKeymap(m_dpy, m_keyQuery);
+    XQueryKeymap(x_dpy, x_keyQuery);
 }
 
 void CEGUI::APP::HandleEvents() {
 	if (XPending(x_dpy)) {
 		XEvent e;
-		while (XNextEvent(x_dpy, e)) {
+		while (XNextEvent(x_dpy, &e)) {
 			switch(e.type) {
 				case ConfigureNotify:
-					resize(e.width, e.height);
+					resize(e.xconfigurerequest.width, e.xconfigurerequest.height);
 					break;
 				case MotionNotify:
 					// move pointer to center of screen
@@ -368,9 +379,9 @@ void CEGUI::APP::HandleEvents() {
 }
 
 bool CEGUI::APP::GetKeyPressed(int key) {
-    char keycode = m_keyMap[key];
+    char keycode = x_keyMap[key];
 
-    if ( ( (m_keyQuery[keycode/8]) & (0x1 << keycode%8) )) {
+    if ( ( (x_keyQuery[keycode/8]) & (0x1 << keycode%8) )) {
         return true;
     }
 
@@ -379,13 +390,14 @@ bool CEGUI::APP::GetKeyPressed(int key) {
 
 void CEGUI::APP::CEGUI_CLOSE() {
     XFreeGC(x_dpy, x_gc);
-    if (!defaultcolor) XFreeColormap(m_dpy, m_cmap);
-    XFree(m_visinfo);
-    XDestroyImage(m_Xframebuff);
-    XDestroyWindow(m_dpy, m_win);
-    XFree(m_screen);
-    XFree(m_dpy);
+    if (!x_defaultcolor) XFreeColormap(x_dpy, x_cmap);
+    XFree(x_visinfo);
+    XDestroyImage(x_framebuffer[0]);
+		XDestroyImage(x_framebuffer[1]);
+    XDestroyWindow(x_dpy, x_win);
+    XFree(x_screen);
+    XFree(x_dpy);
 
-    XSync(m_dpy, True);
+    XSync(x_dpy, True);
 }
 
