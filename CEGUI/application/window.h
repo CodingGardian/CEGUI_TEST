@@ -11,10 +11,10 @@ namespace CEGUI {
 
 		typedef void* plhandle;
 
-    struct Framebuffer {
-      unsigned char* frame;
-      unsigned int width, height, bytedepth;
-    };
+    	struct Framebuffer {
+      		unsigned char* frame;
+      		unsigned int width, height, bytedepth;
+    	};
 
 		struct ppblock { // pixel proccess block, 8 bytes wide, no need to change for 32 bit systems
 			char data[8];
@@ -34,11 +34,12 @@ namespace CEGUI {
 
 		struct WindowData {
 			int width, height, bytedepth;
-			char* frame;
+			unsigned char* data;
 		};
 		extern WindowData WinData;
 
-    int CEGUI_INIT(unsigned int width, unsigned int height, char* pallete, int bytedepth);
+    	int CEGUI_INIT(unsigned int width, unsigned int height, char* pallete, int bytedepth);
+	
 		void CEGUI_CLOSE();
 
 		void SwapActiveBuffer();
@@ -47,19 +48,19 @@ namespace CEGUI {
 
 		XErrorEvent GetError();
             
-    void QueryKeys();
-    bool GetKeyPressed(int key);
+    	void QueryKeys();
+    	bool GetKeyPressed(int key);
 
 		Pixel4b GetPalleteColor4b(plhandle, char);
 		Pixel4b GetPalleteColor3b(plhandle, char);
 		Pixel4b GetpalleteColor2b(plhandle, char);
 		
-    //Atom* SendAtom(char* atomname, Bool only_if_exists); me angy. fix.
+    	//Atom* SendAtom(char* atomname, Bool only_if_exists); me angy. fix.
 
-    void Update(); // draws framebuffer
+    	void Update(); // draws framebuffer
 
 		void QueryKeys();
-  }
+  	}
 }
 
 

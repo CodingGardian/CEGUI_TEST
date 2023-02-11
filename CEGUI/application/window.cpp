@@ -65,6 +65,7 @@ Pixel4b x_colorto4bytes[256];
 
 // I'm pulling my hair out trying to find if X11 erros are called imediatley upon fail or later through asynchronous tomfoolery.
 // For now we'll stick with the error handler being called immediatley on fail b/c the documnetation seems to suggest that :\
+
 int HandleErrors(Display* dpy, XErrorEvent* err);
 
 Display* xwrapOpenDisplay(char* displayname);
@@ -330,23 +331,22 @@ void Resize(int width, int height) {
     x_height = height;
 	
     XDestroyImage(x_framebuffer[0]); // frees the memory pointed by the framebuffer too
-		XDestroyImage(x_framebuffer[1]);
+	XDestroyImage(x_framebuffer[1]);
 
     frames[0] = (unsigned char*)malloc(x_height*x_width*4);
-		frames[1] = (unsigned char*)malloc(x_height*x_width*4)
+	frames[1] = (unsigned char*)malloc(x_height*x_width*4);
     
     for (int i=0; i<x_height*x_height; i++) {
-        x_framebuffer[0]->memory[i] = 0;
-				x_framebuffer[1]->memory[i] = 0;
+        
     }
 
     x_framebuffer[0] = XCreateImage(x_dpy, x_visinfo->visual, x_visinfo->depth, ZPixmap, 0, 
                                	  (char*)(frames[0]), x_width, x_height, 32, 0);
 
-		x_framebuffer[1] = XCreateImage(x_dpy, x_visinfo->visual, x_visinfo->depth, ZPixmap, 0, 
-                               	  (char*)(frames[1]) x_width, x_height, 32, 0);
+	x_framebuffer[1] = XCreateImage(x_dpy, x_visinfo->visual, x_visinfo->depth, ZPixmap, 0, 
+                               	  (char*)(frames[1]), x_width, x_height, 32, 0);
 	
-    if (!x_framebuff || !(x_framebuff+1)) exit(-1);
+    if (!x_framebuffer || !(x_framebuffer+1)) exit(-1);
 }
 
 void CEGUI::APP::Update() {
@@ -364,7 +364,7 @@ void CEGUI::APP::HandleEvents() {
 		while (XNextEvent(x_dpy, &e)) {
 			switch(e.type) {
 				case ConfigureNotify:
-					resize(e.xconfigurerequest.width, e.xconfigurerequest.height);
+					Resize(e.xconfigurerequest.width, e.xconfigurerequest.height);
 					break;
 				case MotionNotify:
 					// move pointer to center of screen

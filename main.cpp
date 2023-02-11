@@ -1,5 +1,5 @@
 //#include <events/events.h>
-// cd "/usercode/" && g++ -I /usercode/CEGUI/ main.cpp CEGUI/application/window.cpp CEGUI/application/application.cpp CEGUI/base/graphicsutil/impl.cpp -lX11 -o main && "/usercode/"main
+// cd "/usercode/CEGUI_TEST" && g++ -I/usercode/CEGUI_TEST/CEGUI main.cpp CEGUI/application/window.cpp CEGUI/application/application.cpp CEGUI/base/graphicsutil/impl.cpp -lX11 -o main && "/usercode/CEGUI_TEST"main
 
 // cd "/usercode/" && g++ -I /usercode/CEGUI/ main.cpp CEGUI/base/memory/ram.cpp CEGUI/base/memory/texture.cpp -o main && "/usercode/"main
 

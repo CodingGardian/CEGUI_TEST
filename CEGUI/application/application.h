@@ -16,7 +16,7 @@ namespace CEGUI {
     };
 };
 
-#define Error(str) _Error(str, __PRETTY_FUNCTION__)
-#define Warning(str) _Warning(str, __PRETTY_FUNCTION__)
+#define Error(str) CEGUI::APP::_Error(str, __PRETTY_FUNCTION__)
+#define Warning(str) CEGUI::APP::_Warning(str, __PRETTY_FUNCTION__)
 
 #endif
