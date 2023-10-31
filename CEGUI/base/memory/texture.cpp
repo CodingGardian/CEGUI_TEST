@@ -405,7 +405,6 @@ TextureNode* MTextureBuffer::allocate(const char* filename) {
 
 
 // NOTE: decrement linked list texture header pointers and such to account for the memory being moved (this is the most time expensive "basic" function)
-// LETS GO BOYS O(1) TIMEEEEEEEEE
 void MTextureBuffer::deallocate(TextureNode* node) {
 	  // this will be hard
     //  no need to delete memory since it will be overwritten
