@@ -65,10 +65,10 @@ namespace CEGUI {
 
                 bool operator==(IMemoryBuffer* other) { return false; }
 
-								const MemoryToolkit& GetHeaderToolkit() {return *m_header_toolkit;}
-								const MemoryToolkit& GetTextureToolkit() {return *m_texture_toolkit;}
+		const MemoryToolkit& GetHeaderToolkit() {return *m_header_toolkit;}
+		const MemoryToolkit& GetTextureToolkit() {return *m_texture_toolkit;}
 
-							// TODO: implement functions for THandle
+		// TODO: implement functions for THandle
 
             private:
                 CEGUI::MEMORY::MemoryToolkit* m_header_toolkit;
@@ -85,16 +85,16 @@ namespace CEGUI {
                 char* m_start;
                 const char* m_name;
 
-								int m_allocatedHeaders;
-            		int m_texture_unallocated;
+		int m_allocatedHeaders;
+        	int m_texture_unallocated;
 
-								TextureNode* m_head; // head node ALWAYS points to start of memory block, and ALWAYS at the start of header data block
-								TextureNode* m_tail; // points to the end of the list
+		TextureNode* m_head; // head node ALWAYS points to start of memory block, and ALWAYS at the start of header data block
+		TextureNode* m_tail; // points to the end of the list
 
-								bool m_check_block; // set to true when a block is deleted
+		bool m_check_block; // set to true when a block is deleted
 
-								TextureNode** m_ptrFreeNodes;
-								short m_FreeNodeTop;
+		TextureNode** m_ptrFreeNodes;
+		short m_FreeNodeTop;
             };
             
 
