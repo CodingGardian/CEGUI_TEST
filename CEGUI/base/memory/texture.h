@@ -27,11 +27,11 @@ namespace CEGUI {
 
             struct TextureNode { // a header to a texture that stores metadata in a linked list in a specified buffer
                 // when a block of memory is not enogh size  (gaps in memory being used to store new textures)
-            		// but there is space at another block (at the end of the texture heap or space between two other blocks)
-								TextureNode* next; // the next block if the data is split, nullptr if this is the whole block
+            	// but there is space at another block (at the end of the texture heap or space between two other blocks)
+		TextureNode* next; // the next block if the data is split, nullptr if this is the whole block
 
                 TextureNode* seqnext; // The next block, headers are not stored sequentially in the header block, but their trail of ptrs (head --> tail) do
-								TextureNode* seqbefore;
+		TextureNode* seqbefore;
 				
                 char* mem;
 
@@ -39,9 +39,6 @@ namespace CEGUI {
                 int width; // width (in pixels or whatever)
 
                 int len; // size of the block (in pixels), can be less than vspan*width because of continued memory
-
-								
-
             };
 
             // not meant to be inherited from, but if you want this functionality without writing much code, go for it
