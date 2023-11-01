@@ -408,7 +408,7 @@ TextureNode* MTextureBuffer::allocate(const char* filename) {
 void MTextureBuffer::deallocate(TextureNode* node) {
 	  // this will be hard
     //  no need to delete memory since it will be overwritten
-    if (node == m_head) {std::cerr << "H E C K  O F F" << std::endl; exit(-1);}
+    if (node == m_head) {std::cerr << "Deallocate error" << std::endl; exit(-1);}
 		
 		// IF NOT SPLIT
 		if (node->next == nullptr) {
