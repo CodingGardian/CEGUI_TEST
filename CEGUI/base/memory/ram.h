@@ -11,10 +11,7 @@
 #define INSUFFICIENT_SPACE 1
 #define ALLOCATION_ERROR 2
 
-#define NO_INTERFACE nullptr // haha funny number
-
-// TODO: make IMemoryBuffer as idiot-proof as possible 
-// (no offense to any other programmers planning to use this libray, I am an idiot sometimes and need this too)
+#define NO_INTERFACE nullptr
 
 
 // TODO: write an buffer that can be used as a template allocator
